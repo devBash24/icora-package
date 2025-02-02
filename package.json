@@ -1,0 +1,49 @@
+{
+  "name": "icora",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "type": "module",
+  "homepage": "https://icora.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devBash24/iconium-cli.git"
+  },
+  "bin": {
+    "iconium": "dist/index.js"
+  },
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "build": "tsc",
+    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "icora",
+    "icora-cli",
+    "icora-icons",
+    "icora-web",
+    "icora-web-cli",
+    "icons"
+  ],
+  "author": "Bash John",
+  "license": "ISC",
+  "description": "Iconium CLI",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "inquirer": "^12.3.2",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/chalk": "^0.4.31",
+    "@types/commander": "^2.12.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^22.10.10"
+  },
+  "bugs": {
+    "url": "https://github.com/devBash24/iconium-cli/issues"
+  }
+}
