@@ -6,7 +6,7 @@
   "homepage": "https://icora.vercel.app/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devBash24/iconium-cli.git"
+    "url": "git+https://github.com/devBash24/icora-package"
   },
   "bin": {
     "iconium": "dist/index.js"
@@ -44,6 +44,6 @@
     "@types/node": "^22.10.10"
   },
   "bugs": {
-    "url": "https://github.com/devBash24/iconium-cli/issues"
+    "url": "https://github.com/devBash24/icora-cli/issues"
   }
 }
