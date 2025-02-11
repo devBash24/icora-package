@@ -23,21 +23,25 @@ program
         logError("Failed to initialize configuration.");
     }
 });
-// download a specific icon
+// download specific icons
 program
-    .command("add <icon>")
-    .description("Add an icon to your project (format: libraryName-iconName)")
-    .action(async (icon) => {
+    .command("add <icons...>")
+    .description("Add one or more icons to your project (format: libraryName-iconName)")
+    .action(async (icons) => {
     try {
         const config = loadConfig();
-        const [folder, name] = icon.split("-");
-        if (!folder || !name) {
-            throw new Error("Invalid format. Use: libraryName-iconName");
+        for (const icon of icons) {
+            const [folder, name] = icon.split("-");
+            if (!folder || !name) {
+                console.log(chalk.yellow(`Skipping "${icon}": Invalid format. Use: libraryName-iconName`));
+                continue;
+            }
+            console.log(chalk.blue(`Fetching icon: ${icon}...`));
+            const responseIcon = await fetchIcon(folder, name);
+            const iconFile = createImportsStatement() + "\n" + responseIcon.content;
+            saveIconToFile(config.targetDirectory + `/${folder}`, `${responseIcon.name}.tsx`, iconFile);
+            console.log(chalk.green(`✔ Added ${icon}`));
         }
-        console.log(chalk.blue(`Fetching icon: ${icon}...`));
-        const responseIcon = await fetchIcon(folder, name);
-        const iconFile = createImportsStatement() + "\n" + responseIcon.content;
-        saveIconToFile(config.targetDirectory + `/${folder}`, `${responseIcon.name}.tsx`, iconFile);
     }
     catch (error) {
         if (error instanceof Error) {

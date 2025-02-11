@@ -1,7 +1,12 @@
 const API_BASE_URL = 'https://icora-api.onrender.com/api';
 export const fetchIcon = async (library, name) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/icons?library=${library}&name=${name}`);
+        const response = await fetch(`${API_BASE_URL}/icons?library=${library}&name=${name}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'GET'
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -49,7 +54,12 @@ export const listIcons = async () => {
 };
 export const fetchIconsByLibrary = async (libraryName) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/icons/${libraryName}`);
+        const response = await fetch(`${API_BASE_URL}/icons/${libraryName}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'GET'
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
