@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://icora-api.onrender.com/api';
+const API_BASE_URL = 'https://icora-api.vercel.app/api';
 export const fetchIcon = async (library, name) => {
     try {
         const response = await fetch(`${API_BASE_URL}/icons?library=${library}&name=${name}`, {
