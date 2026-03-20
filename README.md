@@ -1,95 +1,154 @@
-# Icora
+# Icora CLI
 
-A comprehensive collection of icons for your next project. Visit our [documentation website](https://icora.vercel.app/) for more details.
+Icora is a CLI for fetching Icora icon components into a React TypeScript project.
+
+## Links
+
+- Website: https://icora.vercel.app/
+- API: https://icora-api.vercel.app/api
+- Package: https://www.npmjs.com/package/icora
+
+## Requirements
+
+- Node.js `>=18.18.0`
 
 ## Installation
 
-1. Initialize Icora in your project:
+Use the CLI directly:
+
 ```bash
 npx icora@latest init
-
 ```
 
-
-This will prompt you for:
-- Icons directory (default: `src/assets/icons`)
-- Types path (default: `@/src/lib/`)
-
-## Usage
-
-### Add Individual Icon
-
-Add a specific icon to your project:
+Or install it as a dev dependency:
 
 ```bash
-npx icora add <library-iconName>
+npm install --save-dev icora
 ```
 
+## Platform
 
-Example:
+Icora currently has three parts:
+
+- `icora` CLI for adding icons to your project
+- Icora website for browsing documentation and icons: https://icora.vercel.app/
+- Icora API for icon delivery: https://icora-api.vercel.app/api
+
+## Commands
+
+Initialize or update the local config:
+
+```bash
+npx icora init
+npx icora init --output src/assets/icons
+```
+
+Add one or more icons:
+
 ```bash
 npx icora add ai-AiFillDelete
+npx icora add ai-AiFillDelete bs-BsCartCheck
 ```
 
+Add a full library bundle:
 
-### Add All Icons from Library
-
-Add all icons from a specific library:
-
-```bash
-npx icora add-all <library>
-```
-
-
-Example:
 ```bash
 npx icora add-all ai
 ```
 
+List supported libraries:
 
+```bash
+npx icora list
+```
 
-## Available Icon Libraries
+Run environment diagnostics:
 
-- `fa` - Font Awesome
-- `ai` - Ant Design Icons
-- `bs` - Bootstrap Icons
-- `bi` - BoxIcons
-- `cg` - CSS.gg Icons
-- `ci` - Circum Icons
-- `di` - DevIcons
-- `fi` - Feather Icons
-- `fc` - Flat Color Icons
-- `gi` - Game Icons
-- `go` - GitHub Octicons Icons
-- `gr` - Grommet-Icons
-- `hi` - Hero Icons
-- `im` - IcoMoon Free
-- `io` - IonIcons (version 4)
-- `io5` - IonIcons (version 5)
-- `md` - Material Design Icons
-- `ri` - Remix Icon
-- `si` - Simple Icons
-- `sl` - Simple Line Icons
-- `tb` - Tabler Icons
-- `ti` - TypIcons
-- `vsc` - VS Code Icons
-- `wi` - Weather Icons
+```bash
+npx icora doctor
+```
+
+## Output Controls
+
+The `add` and `add-all` commands support:
+
+- `--output <dir>` to override the configured directory for one run
+- `--dry-run` to preview files without writing them
+- `--force` to overwrite existing generated files
+- `--skip-existing` to leave existing files untouched
 
 ## Configuration
 
-After initialization, your configuration will be saved in `.Icorarc.json`. You can manually edit this file to update paths:
+The canonical config file is `.iconiumrc.json`.
+
+Example:
 
 ```json
 {
-  "targetDirectory": "src/assets/icons",
-  "typesPath": "@/src/lib/"
+  "version": 1,
+  "targetDirectory": "src/assets/icons"
 }
 ```
 
-## Documentation
+Legacy `.iconiumrc` files are still read for compatibility, but `init` now writes `.iconiumrc.json`.
 
-For more detailed documentation, examples, and API references, visit our [documentation website](https://icora.vercel.app/).
+## API Usage
+
+The CLI fetches generated icons from the Icora API.
+
+Base URL:
+
+```txt
+https://icora-api.vercel.app/api
+```
+
+Examples:
+
+```txt
+GET /icons?library=ai&name=AiFillDelete
+GET /icons/ai
+```
+
+## Error Handling
+
+Icora prints stable error categories and actionable next steps for:
+
+- invalid icon identifiers
+- unsupported libraries
+- config file issues
+- API failures and timeouts
+- file write conflicts and permission errors
+
+## Supported Libraries
+
+Run `npx icora list` to print the current supported library ids.
+
+For interactive browsing and documentation, use the website:
+
+https://icora.vercel.app/
+
+## Development
+
+```bash
+npm install
+npm run check
+```
+
+Quality gates:
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- `npm run pack:dry-run`
+
+## Additional Feature Ideas
+
+- `search <query>` for icon discovery
+- `info <library-icon>` for metadata inspection
+- local metadata caching for faster repeated runs
+- richer output targets if the package later expands beyond React TSX
 
 ## License
 
-MIT
+ISC

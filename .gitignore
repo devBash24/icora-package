@@ -2,14 +2,10 @@
 node_modules/
 
 # Build output
-/src
-/DS_Store
+dist/
 
 # Environment variables
 .env
-
-# Package lock
-package-lock.json
 
 # IDE/Editor specific
 .vscode/
@@ -27,5 +23,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Config file
+# Local config
 .iconiumrc
+.iconiumrc.json
+
+# Packed archives
+*.tgz

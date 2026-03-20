@@ -1,72 +1,98 @@
-const API_BASE_URL = 'https://icora-api.vercel.app/api';
-export const fetchIcon = async (library, name) => {
+import { API_BASE_URL, DEFAULT_FETCH_TIMEOUT_MS, RETRYABLE_STATUS_CODES } from "./constants.js";
+import { ApiError, NetworkError } from "./errors.js";
+async function readErrorMessage(response) {
+    const text = await response.text();
+    if (!text) {
+        return `Request failed with status ${response.status}.`;
+    }
     try {
-        const response = await fetch(`${API_BASE_URL}/icons?library=${library}&name=${name}`, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'GET'
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const parsed = JSON.parse(text);
+        return parsed.message ?? text;
+    }
+    catch {
+        return text;
+    }
+}
+export class ApiClient {
+    baseUrl;
+    fetchImpl;
+    timeoutMs;
+    constructor(options = {}) {
+        this.baseUrl = options.baseUrl ?? API_BASE_URL;
+        this.fetchImpl = options.fetchImpl ?? fetch;
+        this.timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
+    }
+    async fetchIcon(library, name) {
+        const payload = await this.requestJson(`/icons?library=${encodeURIComponent(library)}&name=${encodeURIComponent(name)}`);
+        if (!payload?.name || !payload?.content) {
+            throw new ApiError(`The API returned an invalid icon payload for "${library}-${name}".`, "Try again later or report the issue if it keeps happening.");
         }
-        const data = await response.json();
-        const icon = data.data;
-        return icon;
+        return payload;
     }
-    catch (error) {
-        throw new Error(`Failed to fetch icon "${library}-${name}". ${error}`);
-    }
-};
-export const listIcons = async () => {
-    try {
-        const iconSets = [
-            { id: "fa", name: "Font Awesome" },
-            { id: "ai", name: "Ant Design Icons" },
-            { id: "bs", name: "Bootstrap Icons" },
-            { id: "bi", name: "BoxIcons" },
-            { id: "cg", name: "CSS.gg Icons" },
-            { id: "ci", name: "Circum Icons" },
-            { id: "di", name: "DevIcons" },
-            { id: "fi", name: "Feather Icons" },
-            { id: "fc", name: "Flat Color Icons" },
-            { id: "gi", name: "Game Icons" },
-            { id: "go", name: "GitHub Octicons Icons" },
-            { id: "gr", name: "Grommet-Icons" },
-            { id: "hi", name: "Hero Icons" },
-            { id: "im", name: "IcoMoon Free" },
-            { id: "io", name: "IonIcons (version 4)" },
-            { id: "io5", name: "IonIcons (version 5)" },
-            { id: "md", name: "Material Design Icons" },
-            { id: "ri", name: "Remix Icon" },
-            { id: "si", name: "Simple Icons" },
-            { id: "sl", name: "Simple Line Icons" },
-            { id: "tb", name: "Tabler Icons" },
-            { id: "ti", name: "TypIcons" },
-            { id: "vsc", name: "VS Code Icons" },
-            { id: "wi", name: "Weather Icons" }
-        ];
-        return iconSets;
-    }
-    catch (error) {
-        throw new Error(`Failed to list icons. ${error}`);
-    }
-};
-export const fetchIconsByLibrary = async (libraryName) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/icons/${libraryName}`, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'GET'
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    async fetchIconsByLibrary(library) {
+        const payload = await this.requestJson(`/icons/${encodeURIComponent(library)}`);
+        if (!payload?.name || !payload?.content) {
+            throw new ApiError(`The API returned an invalid library payload for "${library}".`, "Try again later or report the issue if it keeps happening.");
         }
-        const data = await response.json();
-        return data.data || undefined;
+        return payload;
     }
-    catch (error) {
-        throw new Error(`Failed to list icons. ${error}`);
+    async healthCheck() {
+        await this.fetchIcon("ai", "AiOutlineUserAdd");
     }
-};
+    async requestJson(requestPath) {
+        try {
+            return await this.requestJsonOnce(requestPath);
+        }
+        catch (error) {
+            if (error instanceof NetworkError) {
+                return this.requestJsonOnce(requestPath);
+            }
+            throw error;
+        }
+    }
+    async requestJsonOnce(requestPath) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+        let response;
+        try {
+            response = await this.fetchImpl(`${this.baseUrl}${requestPath}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                signal: controller.signal,
+            });
+        }
+        catch (error) {
+            throw new NetworkError(`Failed to reach the Icora API at ${this.baseUrl}.`, "Check your internet connection and try again.", { cause: error instanceof Error ? error : undefined });
+        }
+        finally {
+            clearTimeout(timeout);
+        }
+        if (!response.ok) {
+            const message = await readErrorMessage(response);
+            if (response.status === 404) {
+                throw new ApiError(message || "The requested icon was not found.", "Verify the icon name or run `iconium list` to confirm the library.");
+            }
+            if (response.status === 429) {
+                throw new ApiError("The Icora API rate limit was reached.", "Wait a moment and retry the command.");
+            }
+            if (RETRYABLE_STATUS_CODES.has(response.status)) {
+                throw new NetworkError(`The Icora API is temporarily unavailable (${response.status}).`, "Retry in a moment.");
+            }
+            throw new ApiError(message || `The Icora API returned status ${response.status}.`, "Try again later. If the problem persists, check the API service.");
+        }
+        try {
+            const data = (await response.json());
+            if (data?.data === undefined) {
+                throw new ApiError("The Icora API response did not include a data field.", "Try again later or report the API response issue.");
+            }
+            return data.data;
+        }
+        catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError("Failed to parse the Icora API response.", "Try again later or report the issue if it keeps happening.", { cause: error instanceof Error ? error : undefined });
+        }
+    }
+}
+//# sourceMappingURL=api.js.map

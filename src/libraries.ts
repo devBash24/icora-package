@@ -1,0 +1,28 @@
+export const ICON_LIBRARIES = [
+  { id: "fa", name: "Font Awesome" },
+  { id: "ai", name: "Ant Design Icons" },
+  { id: "bs", name: "Bootstrap Icons" },
+  { id: "bi", name: "BoxIcons" },
+  { id: "cg", name: "CSS.gg Icons" },
+  { id: "ci", name: "Circum Icons" },
+  { id: "di", name: "DevIcons" },
+  { id: "fi", name: "Feather Icons" },
+  { id: "fc", name: "Flat Color Icons" },
+  { id: "gi", name: "Game Icons" },
+  { id: "go", name: "GitHub Octicons Icons" },
+  { id: "gr", name: "Grommet-Icons" },
+  { id: "hi", name: "Hero Icons" },
+  { id: "im", name: "IcoMoon Free" },
+  { id: "io", name: "IonIcons (version 4)" },
+  { id: "io5", name: "IonIcons (version 5)" },
+  { id: "md", name: "Material Design Icons" },
+  { id: "ri", name: "Remix Icon" },
+  { id: "si", name: "Simple Icons" },
+  { id: "sl", name: "Simple Line Icons" },
+  { id: "tb", name: "Tabler Icons" },
+  { id: "ti", name: "TypIcons" },
+  { id: "vsc", name: "VS Code Icons" },
+  { id: "wi", name: "Weather Icons" },
+] as const;
+
+export const SUPPORTED_LIBRARY_IDS = new Set<string>(ICON_LIBRARIES.map((library) => library.id));

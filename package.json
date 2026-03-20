@@ -1,8 +1,13 @@
 {
   "name": "icora",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "main": "./dist/index.js",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "homepage": "https://icora.vercel.app/",
   "repository": {
     "type": "git",
@@ -13,9 +18,15 @@
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "build": "tsc",
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "prepublishOnly": "npm run build"
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build && npm run pack:dry-run",
+    "pack:dry-run": "npm pack --dry-run",
+    "dev": "tsx watch src/index.ts",
+    "prepublishOnly": "npm run check"
   },
   "keywords": [
     "icora",
@@ -28,22 +39,25 @@
   "author": "Bash John",
   "license": "ISC",
   "description": "Iconium CLI",
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^13.1.0",
-    "dotenv": "^16.4.7",
-    "inquirer": "^12.3.2",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "inquirer": "^12.3.2"
   },
   "devDependencies": {
-    "@types/chalk": "^0.4.31",
-    "@types/commander": "^2.12.0",
     "@types/inquirer": "^9.0.7",
-    "@types/node": "^22.10.10"
+    "@types/node": "^22.13.14",
+    "@eslint/js": "^9.22.0",
+    "eslint": "^9.22.0",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1"
   },
   "bugs": {
-    "url": "https://github.com/devBash24/icora-cli/issues"
+    "url": "https://github.com/devBash24/icora-package/issues"
   }
 }
